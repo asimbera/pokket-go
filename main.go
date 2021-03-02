@@ -24,6 +24,11 @@ func setupRouter() *gin.Engine {
 			auth.POST("/login", controllers.LoginController)   // /api/v1/auth/login
 			auth.POST("/signup", controllers.SignupController) // /api/v1/auth/signup
 		}
+		secure := v1.Group("/secure")
+		secure.Use(controllers.AuthMiddleware())
+		{
+			secure.GET("/me")
+		}
 	}
 
 	return r

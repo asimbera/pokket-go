@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/asimbera/pokket/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -108,4 +109,34 @@ func SignupController(c *gin.Context) {
 		"token": tokenStr,
 	})
 	return
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("X-Token")
+		if tokenString == "" {
+			c.String(http.StatusForbidden, "Missing jwt token")
+			return
+		}
+		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			}
+			return []byte(JwtSecret), nil
+		})
+
+		if err != nil {
+			c.String(http.StatusForbidden, "%s", err.Error())
+			return
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			c.Set("uid", claims["uid"])
+			c.Next()
+		} else {
+			c.String(http.StatusForbidden, "Invalid token")
+			return
+		}
+
+	}
 }
