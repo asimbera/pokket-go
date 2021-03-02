@@ -1,0 +1,46 @@
+openapi: '3.0.2'
+info:
+  title: Pokket
+  version: 1.0.0
+  contact:
+    name: Asim Bera
+    email: asimbera@outlook.in
+
+servers:
+  - url: http://localhost:8080/api/v1/
+
+paths:
+  /health:
+    get:
+      summary: Check server health
+      operationId: HealthCheck
+      responses:
+        '200':
+          description: Ok
+
+  /auth/login:
+    post:
+      summary: Log In
+      operationId: LogIn
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthSuccess'
+  /auth/signup:
+    post:
+      summary: Sign Up
+      operationId: SignUp
+      responses:
+        '200':
+          $ref: '#/components/responses/AuthSuccess'
+
+components:
+  responses:
+    'AuthSuccess':
+      description: Ok
+      content:
+        'application/json':
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
